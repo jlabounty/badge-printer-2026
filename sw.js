@@ -1,11 +1,11 @@
 // Network-first cache so the app keeps working if venue Wi-Fi drops after
 // the first load. Always tries the network, so updates show up immediately.
-const CACHE = 'badge-printer-v2';
+const CACHE = 'badge-printer-v3';
 const SHELL = [
   './', 'index.html', 'style.css', 'badge.yaml', 'sample.csv', 'assets/logo.svg',
   'vendor/js-yaml.min.js', 'vendor/qrcode.min.js',
   'js/config.js', 'js/pronouns.js', 'js/render.js', 'js/share.js', 'js/zip.js',
-  'js/batch.js', 'js/settings.js', 'js/app.js',
+  'js/batch.js', 'js/xlsx.js', 'js/importer.js', 'js/settings.js', 'js/app.js',
 ];
 
 self.addEventListener('install', e => {

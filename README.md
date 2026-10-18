@@ -49,19 +49,25 @@ If sharing isn't available (for example in desktop browsers), use **Download PNG
 ## Batch / kiosk use
 
 - **Single mode** is for walk-ups. "Clear / next attendee" resets the form. "Remember my info" is off by default, so a kiosk doesn't keep the previous person's details.
-- **Batch mode** takes a CSV file, or cells pasted straight from Excel/Google Sheets (tab-separated). Semicolon-separated files work too. A header row is required. Columns are matched to field keys or labels, case-insensitive. Common aliases work too:
-  - `full name`, `organization`, `affiliation`, `linkedin`, `banner`, `badge type`, …
-  - `first name` + `last name` columns are combined into the name.
+- **Batch mode** imports attendees from:
+  - an Excel `.xlsx` file, such as a Whova attendee export
+  - a `.csv` file
+  - cells pasted from Excel or Google Sheets
 
-  See [`sample.csv`](sample.csv):
+  A **column mapping** step then shows which column feeds each badge field:
+  - **Sheet and header row:** it picks the sheet and header row automatically, skipping any title rows above the header.
+  - **Column guesses:** it guesses each column from the header text. "Affiliation" goes to company, a column containing "pronoun" to pronouns, "LinkedIn" to the QR URL, and "Ticket Type" or "Category" to the banner. Separate First and Last name columns are joined.
+  - **Banner values:** it turns each ticket or category value into a banner. "Keynote Speaker" becomes Speaker and "Exhibitor – Gold" becomes Sponsor. "General Admission" gets no banner, or you can keep the original text.
+  - **Row filter (optional):** e.g. *Check-in Status is "Checked in"*.
+  - **Preview:** shows the first rows before you import, and whether they'll replace or be added to the current queue.
+
+  Your choices are remembered by column name, so the next export from the same source maps itself. Multiple pronoun sets in one cell (comma, semicolon or `·` separated) are merged the same way as in the picker. URLs without `https://` get it added. Old binary `.xls` files aren't supported; save them as `.xlsx` or `.csv`. See [`sample.csv`](sample.csv):
 
   ```csv
   name,pronouns,company,url,role
   Ada Lovelace,she/her,Analytical Engines Ltd.,https://www.linkedin.com/in/example-ada,Speaker
   Jordan Kim,"she/they, he/they",Bletchley Labs,https://example.com/jordan,Sponsor
   ```
-
-  Multiple pronoun sets in one cell (comma, semicolon or `·` separated) are merged the same way as in the picker. URLs without `https://` get it added.
 
 ---
 
@@ -144,7 +150,9 @@ badge-printer-2026/
     ├── render.js     canvas layout engine, QR, colour modes, PNG export
     ├── share.js      Web Share API + downloads
     ├── zip.js        tiny zip writer for Download all
-    ├── batch.js      CSV import + print queue
+    ├── batch.js      CSV parsing + print queue
+    ├── xlsx.js       minimal .xlsx reader (no library)
+    ├── importer.js   column-mapping import dialog
     ├── settings.js   settings drawer
     └── app.js        form + wiring
 ```

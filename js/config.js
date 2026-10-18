@@ -7,6 +7,7 @@ const STORE_KEYS = {
   lastEntry:  'bp_last_entry',
   queue:      'bp_queue',
   ui:         'bp_ui',
+  importMap:  'bp_import_map',
 };
 
 function storeGet(key, fallback = null) {

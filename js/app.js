@@ -306,15 +306,19 @@ async function onDownloadAll() {
   status(`Downloaded ${files.length} badges as a zip.`);
 }
 
-async function importCsvText(text) {
-  try {
-    const entries = csvToEntries(text, app.cfg);
-    Batch.importEntries(entries);
-    status(`Imported ${entries.length} badge${entries.length === 1 ? '' : 's'}.`);
-    $('csv-paste-box').classList.add('hidden');
-  } catch (e) {
-    status(`CSV import failed: ${e.message}`);
-  }
+function openImporter(load, sourceName) {
+  Promise.resolve()
+    .then(load)
+    .then(sheets => Importer.open(sheets, sourceName))
+    .catch(e => status(`Import failed: ${e.message}`));
+}
+
+function onImported(entries, replace) {
+  if (replace) Batch.clear();
+  Batch.importEntries(entries);
+  $('csv-paste-box').classList.add('hidden');
+  $('csv-paste').value = '';
+  status(`Imported ${entries.length} badge${entries.length === 1 ? '' : 's'}.`);
 }
 
 // ── Editing queue rows in the single form ──────────────────────────────────
@@ -398,6 +402,12 @@ async function init() {
     onEdit: editRow,
   });
 
+  Importer.init({
+    getConfig: () => app.cfg,
+    queueLength: () => Batch.rows.length,
+    onImport: onImported,
+  });
+
   Settings.init({
     getConfig: () => app.cfg,
     getYaml: () => app.yaml,
@@ -417,11 +427,12 @@ async function init() {
   $('btn-queue-clear').addEventListener('click', () => { if (confirm('Remove all badges from the queue?')) Batch.clear(); });
   $('btn-queue-reset').addEventListener('click', () => Batch.unmarkAll());
   $('btn-csv-paste-toggle').addEventListener('click', () => $('csv-paste-box').classList.toggle('hidden'));
-  $('btn-csv-import').addEventListener('click', () => importCsvText($('csv-paste').value));
-  $('csv-file').addEventListener('change', async e => {
+  $('btn-csv-import').addEventListener('click', () =>
+    openImporter(() => [{ name: 'Pasted rows', rows: textToRows($('csv-paste').value) }], 'Pasted rows'));
+  $('csv-file').addEventListener('change', e => {
     const f = e.target.files[0];
     e.target.value = '';
-    if (f) importCsvText(await f.text());
+    if (f) openImporter(() => fileToSheets(f), f.name);
   });
 
   const shareOk = canShareFiles();

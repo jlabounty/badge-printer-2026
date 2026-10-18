@@ -71,62 +71,10 @@ function parseCsv(text, delim = ',') {
   return rows.filter(r => r.some(c => c.trim() !== ''));
 }
 
-const HEADER_ALIASES = {
-  name:     ['fullname', 'attendee', 'attendeename', 'displayname', 'badgename', 'preferredname'],
-  company:  ['organization', 'organisation', 'org', 'affiliation', 'employer', 'institution', 'school', 'university', 'chapter'],
-  pronouns: ['pronoun', 'pronounsforbadge'],
-  url:      ['linkedin', 'linkedinurl', 'website', 'profile', 'profileurl', 'link', 'qr', 'qrurl'],
-  role:     ['banner', 'badgetype', 'type', 'ribbon', 'attendeetype', 'ticket', 'tickettype'],
-};
-const normHeader = h => String(h).toLowerCase().replace(/[^a-z0-9]/g, '');
-
-// Map CSV header columns to field keys. Returns { map: {colIdx: key}, first, last }.
-function mapHeaders(headers, cfg) {
-  const map = {};
-  let first = -1, last = -1;
-  headers.forEach((h, i) => {
-    const n = normHeader(h);
-    if (['firstname', 'first', 'givenname'].includes(n)) first = i;
-    if (['lastname', 'last', 'surname', 'familyname'].includes(n)) last = i;
-    for (const f of cfg.fields) {
-      const keys = [normHeader(f.key), normHeader(f.label || ''), ...(HEADER_ALIASES[f.key] || [])];
-      if (keys.includes(n) && !Object.values(map).includes(f.key)) { map[i] = f.key; break; }
-    }
-  });
-  return { map, first, last };
-}
-
-function csvToEntries(text, cfg) {
+// Pasted/CSV text -> rows of cells.
+function textToRows(text) {
   const clean = cleanCsvText(text);
-  const rows = parseCsv(clean, detectDelimiter(clean));
-  if (!rows.length) throw new Error('No rows found.');
-  // The header is the first row (of the first few) whose columns match any
-  // field, so a stray title line above it doesn't break the import.
-  const h = rows.slice(0, 5).findIndex(r => {
-    const m = mapHeaders(r, cfg);
-    return Object.keys(m.map).length || m.first >= 0;
-  });
-  if (h < 0) {
-    const seen = rows[0].map(c => c.trim()).filter(Boolean).slice(0, 6).join(' | ');
-    throw new Error(`No columns matched. Expected headers like: ${cfg.fields.map(f => f.key).join(', ')}. First row was: ${seen || '(empty)'}`);
-  }
-  const headers = rows[h];
-  const data = rows.slice(h + 1);
-  if (!data.length) throw new Error('Found the header row but no badge rows under it.');
-  const { map, first, last } = mapHeaders(headers, cfg);
-  const hasName = Object.values(map).includes('name');
-  const pronounField = cfg.fields.find(f => f.type === 'pronouns');
-  return data.map(cells => {
-    const e = {};
-    for (const [idx, key] of Object.entries(map)) e[key] = (cells[idx] ?? '').trim();
-    if (!hasName && (first >= 0 || last >= 0)) {
-      e.name = [cells[first], cells[last]].map(s => (s || '').trim()).filter(Boolean).join(' ');
-    }
-    if (pronounField && e[pronounField.key]) {
-      e[pronounField.key] = mergePronouns(splitPronounText(e[pronounField.key]), cfg.pronoun_joiner);
-    }
-    return normalizeEntry(cfg, e);
-  });
+  return parseCsv(clean, detectDelimiter(clean)).map(r => r.map(c => c.trim()));
 }
 
 // ── Queue ──────────────────────────────────────────────────────────────────

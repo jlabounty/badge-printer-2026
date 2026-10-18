@@ -47,18 +47,18 @@
     <!-- ── Batch queue ───────────────────────────────────── -->
     <section class="form-section card hidden" id="batch-section">
       <div class="field-group">
-        <label>Import CSV</label>
+        <label>Import attendees</label>
         <div class="button-row">
-          <label class="btn-secondary file-btn">Choose CSV file
-            <input type="file" id="csv-file" accept=".csv,text/csv,text/plain" hidden>
+          <label class="btn-secondary file-btn">Choose file (.xlsx / .csv)
+            <input type="file" id="csv-file" accept=".xlsx,.csv,.tsv,.txt,text/csv,text/plain,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden>
           </label>
           <button type="button" id="btn-csv-paste-toggle" class="btn-ghost">Paste rows</button>
         </div>
         <div id="csv-paste-box" class="hidden">
           <textarea id="csv-paste" rows="6" placeholder="name,pronouns,company,url,role&#10;Ada Lovelace,she/her,Analytical Engines,https://linkedin.com/in/ada,Speaker"></textarea>
-          <button type="button" id="btn-csv-import" class="btn-secondary">Import pasted rows</button>
+          <button type="button" id="btn-csv-import" class="btn-secondary">Continue</button>
         </div>
-        <p class="field-hint" id="csv-hint">First row is the header. Columns are matched to field keys or labels. You can paste cells straight from Excel or Google Sheets.
+        <p class="field-hint" id="csv-hint">Excel (.xlsx), CSV, or cells pasted from Excel/Google Sheets, with a header row. You'll pick which column goes where before importing (e.g. a Whova attendee export).
           <a href="sample.csv" download>Sample CSV</a></p>
       </div>
 
@@ -214,6 +214,20 @@
     </div>
   </aside>
 
+  <!-- ── Import column mapping ───────────────────────────── -->
+  <div id="import-backdrop" class="drawer-backdrop hidden"></div>
+  <aside id="import-modal" class="drawer wide hidden" aria-label="Import attendees" role="dialog">
+    <div class="drawer-header">
+      <h2>Import attendees</h2>
+      <button id="btn-import-close" class="icon-btn dark" aria-label="Close import">&times;</button>
+    </div>
+    <div class="drawer-body" id="import-body"></div>
+    <div class="drawer-footer">
+      <button type="button" id="btn-import-cancel" class="btn-ghost">Cancel</button>
+      <button type="button" id="btn-import-go" class="btn-secondary">Import</button>
+    </div>
+  </aside>
+
   <script src="vendor/js-yaml.min.js"></script>
   <script src="vendor/qrcode.min.js"></script>
   <script src="js/config.js"></script>
@@ -222,6 +236,8 @@
   <script src="js/share.js"></script>
   <script src="js/zip.js"></script>
   <script src="js/batch.js"></script>
+  <script src="js/xlsx.js"></script>
+  <script src="js/importer.js"></script>
   <script src="js/settings.js"></script>
   <script src="js/app.js"></script>
 </body>
