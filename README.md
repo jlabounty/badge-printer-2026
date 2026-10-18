@@ -1,6 +1,6 @@
 # Badge Printer
 
-A mobile-friendly web app for making conference name badges and printing them on a thermal label printer. You open it in a browser; there's nothing to install. It's set up for the 16th Annual oSTEM Conference (Albuquerque, NM · Oct 22–24, 2026), and the layout is fully configurable through a YAML file.
+A mobile-friendly web app for making conference name badges and printing them on a thermal label printer. You open it in a browser; there's nothing to install. The layout, event details and logo are all configurable through a YAML file.
 
 **Live app:** `https://jlabounty.github.io/badge-printer-2026/` (after GitHub Pages is enabled)
 
