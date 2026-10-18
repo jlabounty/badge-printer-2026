@@ -1,0 +1,157 @@
+# Badge layout config. All positions/sizes are in inches from the top-left
+# of the badge unless written as a percentage string (e.g. "50%").
+version: 1
+
+canvas:
+  width_in: 4
+  height_in: 3
+  dpi: 250            # 4x3 in @ 250 dpi = 1000x750 px PNG
+  rotate_output: 0    # 0 | 90 | 180 | 270 (applied to the exported PNG only)
+  bleed_in: 0.06      # shrinks the whole layout inward to tolerate off-centre feeds
+
+output:
+  color_mode: greyscale   # greyscale | bw | color
+  bw_threshold: 160       # 0-255, used by bw mode
+  bw_dither: false        # Floyd-Steinberg dithering in bw mode (nicer for photos/logos)
+  filename: "badge-{name}"
+
+fonts:
+  family: "Arial, Helvetica, sans-serif"
+
+# Values available to text elements as {key}
+vars:
+  event: "16th Annual oSTEM Conference"
+  event_sub: "Albuquerque, NM · Oct 22–24, 2026"
+
+# Form fields shown in the app, in order. Any key added here can be used in
+# elements (field: key or "{key}") and in CSV imports.
+fields:
+  - { key: name, label: Name, required: true, placeholder: "Ada Lovelace" }
+  - { key: pronouns, label: Pronouns, type: pronouns }
+  - { key: company, label: Company / Organization, placeholder: "Analytical Engines Ltd." }
+  - { key: url, label: "Profile URL (LinkedIn, etc.)", type: url, placeholder: "https://linkedin.com/in/..." }
+  - key: role
+    label: Banner
+    type: select
+    allow_custom: true
+    options: ["", Speaker, Sponsor, Staff, Volunteer, Organizer]
+
+pronoun_options:
+  - she/her
+  - he/him
+  - they/them
+  - she/they
+  - he/they
+  - xe/xem
+  - ze/zir
+  - any pronouns
+  - ask me
+pronoun_joiner: " · "     # joins entries that are not slash-mergeable (e.g. "any pronouns")
+
+# Drawn in order. Common keys: x, y, w, h.
+#   if: <field>    only draw when that field has a value
+#   unless: <field> only draw when that field is empty
+#   when: { <field>: { ...overrides } }  override keys when that field has a value
+elements:
+  - id: logo
+    type: image
+    src: assets/logo.svg
+    x: 0.1
+    y: 0.08
+    w: 1.55
+    h: 0.6
+    fit: contain
+    align: left
+
+  - type: text
+    text: "{event}"
+    x: 1.75
+    y: 0.06
+    w: 2.15
+    h: 0.42
+    size: 0.19
+    min_size: 0.11
+    max_lines: 2
+    weight: 700
+    align: right
+    valign: middle
+
+  - type: text
+    text: "{event_sub}"
+    x: 1.75
+    y: 0.48
+    w: 2.15
+    h: 0.2
+    size: 0.12
+    min_size: 0.08
+    align: right
+    valign: middle
+
+  - { type: line, x: 0.1, y: 0.76, w: 3.8, thickness: 0.025 }
+
+  - type: text
+    field: name
+    x: 0.1
+    y: 0.84
+    w: 3.8
+    h: 0.92
+    size: 0.62
+    min_size: 0.22
+    max_lines: 3
+    weight: 800
+    align: center
+    valign: middle
+    when: { role: { h: 0.8 } }
+
+  - type: text
+    field: pronouns
+    x: 0.1
+    y: 1.76
+    w: 3.8
+    h: 0.27
+    size: 0.22
+    min_size: 0.14
+    style: italic
+    align: center
+    valign: middle
+    when: { role: { y: 1.64, h: 0.26 } }
+
+  - type: text
+    field: company
+    x: 0.1
+    y: 2.14
+    w: 2.75
+    h: 0.76
+    size: 0.28
+    min_size: 0.15
+    max_lines: 2
+    weight: 600
+    align: left
+    valign: bottom
+    when: { role: { y: 1.94, h: 0.6 } }
+
+  - type: qr
+    field: url
+    x: 2.98
+    y: 2.04
+    size: 0.9
+    quiet_zone: 2       # modules of white margin (badge whitespace adds the rest)
+    when: { role: { x: 3.1, y: 1.78, size: 0.8 } }
+
+  # Optional banner strip (Speaker / Sponsor / Staff ...)
+  - { type: rect, if: role, x: 0, y: 2.6, w: 4, h: 0.4, fill: "#000" }
+  - type: text
+    if: role
+    field: role
+    x: 0.1
+    y: 2.6
+    w: 3.8
+    h: 0.4
+    size: 0.28
+    min_size: 0.16
+    weight: 800
+    color: "#fff"
+    transform: uppercase
+    letter_spacing: 0.04
+    align: center
+    valign: middle

@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#111111">
+  <title>Badge Printer</title>
+  <link rel="icon" href="assets/icon.svg">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header class="app-header">
+    <h1>Badge Printer</h1>
+    <div class="header-right">
+      <div class="format-switcher" role="group" aria-label="Mode">
+        <button class="format-btn active" data-mode="single">Single</button>
+        <button class="format-btn" data-mode="batch">Batch</button>
+      </div>
+      <button id="btn-settings" class="icon-btn" aria-label="Settings" title="Settings">&#9881;</button>
+    </div>
+  </header>
+
+  <div id="load-error" class="banner-error hidden"></div>
+
+  <div class="app-layout">
+
+    <!-- ── Single badge form ─────────────────────────────── -->
+    <section class="form-section card" id="single-section">
+      <div id="edit-row-note" class="edit-note hidden">
+        <span>Editing queue row <b id="edit-row-num"></b></span>
+        <div class="edit-note-actions">
+          <button type="button" id="btn-edit-save" class="btn-secondary">Save to queue</button>
+          <button type="button" id="btn-edit-cancel" class="btn-ghost">Cancel</button>
+        </div>
+      </div>
+      <form id="badge-form" autocomplete="off" onsubmit="return false"></form>
+      <div class="form-footer">
+        <label class="checkbox-row">
+          <input type="checkbox" id="remember-checkbox">
+          <span>Remember my info on this device</span>
+        </label>
+        <button type="button" id="btn-clear" class="btn-ghost">Clear / next attendee</button>
+      </div>
+    </section>
+
+    <!-- ── Batch queue ───────────────────────────────────── -->
+    <section class="form-section card hidden" id="batch-section">
+      <div class="field-group">
+        <label>Import CSV</label>
+        <div class="button-row">
+          <label class="btn-secondary file-btn">Choose CSV file
+            <input type="file" id="csv-file" accept=".csv,text/csv,text/plain" hidden>
+          </label>
+          <button type="button" id="btn-csv-paste-toggle" class="btn-ghost">Paste rows</button>
+        </div>
+        <div id="csv-paste-box" class="hidden">
+          <textarea id="csv-paste" rows="6" placeholder="name,pronouns,company,url,role&#10;Ada Lovelace,she/her,Analytical Engines,https://linkedin.com/in/ada,Speaker"></textarea>
+          <button type="button" id="btn-csv-import" class="btn-secondary">Import pasted rows</button>
+        </div>
+        <p class="field-hint" id="csv-hint">First row is the header. Columns are matched to field keys or labels. You can paste cells straight from Excel or Google Sheets.
+          <a href="sample.csv" download>Sample CSV</a></p>
+      </div>
+
+      <div class="field-group">
+        <label>Queue <span id="queue-count" class="count-pill"></span></label>
+        <div id="queue-list" class="queue-list"></div>
+        <div class="button-row queue-tools">
+          <button type="button" id="btn-queue-reset" class="btn-ghost">Unmark printed</button>
+          <button type="button" id="btn-queue-clear" class="btn-ghost">Clear queue</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Preview + actions ─────────────────────────────── -->
+    <section class="preview-section">
+      <div class="canvas-wrapper">
+        <canvas id="badge-canvas" aria-label="Badge preview"></canvas>
+      </div>
+      <p id="render-warnings" class="warn-note hidden"></p>
+
+      <div class="action-buttons" id="single-actions">
+        <button id="btn-download" class="btn-ghost-lg">Download PNG</button>
+        <button id="btn-share" class="btn-primary">Share to printer</button>
+      </div>
+
+      <div class="action-buttons hidden" id="batch-actions">
+        <button id="btn-batch-download-all" class="btn-ghost-lg">Download all (.zip)</button>
+        <button id="btn-batch-share-all" class="btn-ghost-lg">Share all</button>
+        <button id="btn-batch-share-next" class="btn-primary wide">Share &amp; next</button>
+      </div>
+
+      <p class="share-note hidden" id="share-note">
+        Sharing isn't supported in this browser. Use Download instead, then open the PNG in the Jadens app.
+      </p>
+      <p class="share-note" id="status-note"></p>
+    </section>
+
+  </div>
+
+  <!-- ── Settings drawer ─────────────────────────────────── -->
+  <div id="settings-backdrop" class="drawer-backdrop hidden"></div>
+  <aside id="settings-drawer" class="drawer hidden" aria-label="Settings" role="dialog">
+    <div class="drawer-header">
+      <h2>Settings</h2>
+      <button id="btn-settings-close" class="icon-btn dark" aria-label="Close settings">&times;</button>
+    </div>
+    <nav class="tabs" role="tablist">
+      <button class="tab active" data-tab="printer">Printer</button>
+      <button class="tab" data-tab="event">Event</button>
+      <button class="tab" data-tab="fields">Fields</button>
+      <button class="tab" data-tab="yaml">Layout YAML</button>
+    </nav>
+
+    <div class="drawer-body">
+      <!-- Printer -->
+      <div class="tab-panel" data-panel="printer">
+        <div class="grid-2">
+          <div class="field-group"><label for="s-width">Width (in)</label><input type="number" id="s-width" step="0.1" min="0.5" data-path="canvas.width_in"></div>
+          <div class="field-group"><label for="s-height">Height (in)</label><input type="number" id="s-height" step="0.1" min="0.5" data-path="canvas.height_in"></div>
+          <div class="field-group"><label for="s-dpi">DPI</label><input type="number" id="s-dpi" step="1" min="50" max="600" data-path="canvas.dpi"></div>
+          <div class="field-group"><label for="s-bleed">Safe inset (in)</label><input type="number" id="s-bleed" step="0.01" min="0" data-path="canvas.bleed_in"></div>
+        </div>
+        <div class="field-group">
+          <label for="s-rotate">Rotate exported PNG</label>
+          <select id="s-rotate" data-path="canvas.rotate_output" data-type="number">
+            <option value="0">0°</option><option value="90">90°</option>
+            <option value="180">180°</option><option value="270">270°</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label>Colour mode</label>
+          <div class="segmented" id="s-color-mode">
+            <button type="button" data-value="greyscale">Greyscale</button>
+            <button type="button" data-value="bw">Black &amp; white</button>
+            <button type="button" data-value="color">Colour</button>
+          </div>
+        </div>
+        <div id="bw-options">
+          <div class="field-group">
+            <label for="s-threshold">B&amp;W threshold <span id="s-threshold-val"></span></label>
+            <input type="range" id="s-threshold" min="0" max="255" data-path="output.bw_threshold" data-type="number">
+          </div>
+          <label class="checkbox-row"><input type="checkbox" id="s-dither" data-path="output.bw_dither"><span>Dither (better for photos/gradients)</span></label>
+        </div>
+        <div class="field-group">
+          <label for="s-filename">File name pattern</label>
+          <input type="text" id="s-filename" data-path="output.filename">
+        </div>
+      </div>
+
+      <!-- Event -->
+      <div class="tab-panel hidden" data-panel="event">
+        <div id="s-vars"></div>
+        <div class="field-group">
+          <label>Logo</label>
+          <div class="logo-preview"><img id="s-logo-img" alt=""></div>
+          <input type="text" id="s-logo-src" placeholder="assets/logo.svg or https://…/logo.png">
+          <p class="field-hint">A path in this site, an image URL (host must allow CORS), or upload a file (stored on this device).</p>
+          <div class="button-row">
+            <label class="btn-secondary file-btn">Upload logo
+              <input type="file" id="s-logo-file" accept="image/*,.svg" hidden>
+            </label>
+            <button type="button" id="s-logo-remove" class="btn-ghost">Remove upload</button>
+          </div>
+        </div>
+        <div class="grid-2" id="s-logo-box">
+          <div class="field-group"><label>X (in)</label><input type="number" step="0.05" data-logo="x"></div>
+          <div class="field-group"><label>Y (in)</label><input type="number" step="0.05" data-logo="y"></div>
+          <div class="field-group"><label>Width (in)</label><input type="number" step="0.05" min="0.1" data-logo="w"></div>
+          <div class="field-group"><label>Height (in)</label><input type="number" step="0.05" min="0.1" data-logo="h"></div>
+        </div>
+      </div>
+
+      <!-- Fields & pronouns -->
+      <div class="tab-panel hidden" data-panel="fields">
+        <div class="field-group">
+          <label>Form fields</label>
+          <div id="s-fields"></div>
+        </div>
+        <div class="field-group">
+          <label for="s-pronouns">Pronoun options (one per line)</label>
+          <textarea id="s-pronouns" rows="8"></textarea>
+        </div>
+        <div class="field-group">
+          <label for="s-banners">Banner options (one per line)</label>
+          <textarea id="s-banners" rows="5"></textarea>
+          <p class="field-hint">Used by the <code>role</code> field. Leave blank to only allow a typed banner.</p>
+        </div>
+      </div>
+
+      <!-- YAML -->
+      <div class="tab-panel hidden" data-panel="yaml">
+        <textarea id="s-yaml" class="code" rows="22" spellcheck="false" autocapitalize="none"></textarea>
+        <p id="s-yaml-status" class="field-hint"></p>
+        <div class="button-row">
+          <button type="button" id="s-yaml-apply" class="btn-secondary">Apply</button>
+          <button type="button" id="s-yaml-export" class="btn-ghost">Export .yaml</button>
+          <label class="btn-ghost file-btn">Import .yaml
+            <input type="file" id="s-yaml-file" accept=".yaml,.yml,text/yaml,text/plain" hidden>
+          </label>
+        </div>
+        <div class="inline-add">
+          <input type="url" id="s-yaml-url" placeholder="Load YAML from URL…">
+          <button type="button" id="s-yaml-load-url" class="btn-add">Load</button>
+        </div>
+        <p class="field-hint">Element reference is in the README. Changes made in the other tabs rewrite this YAML (comments are dropped).</p>
+      </div>
+    </div>
+
+    <div class="drawer-footer">
+      <span id="s-custom-flag" class="field-hint"></span>
+      <button type="button" id="s-reset" class="btn-ghost danger">Reset to default</button>
+    </div>
+  </aside>
+
+  <script src="vendor/js-yaml.min.js"></script>
+  <script src="vendor/qrcode.min.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/pronouns.js"></script>
+  <script src="js/render.js"></script>
+  <script src="js/share.js"></script>
+  <script src="js/zip.js"></script>
+  <script src="js/batch.js"></script>
+  <script src="js/settings.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
