@@ -26,7 +26,7 @@ vars: {}
 # hidden: true are left off the form (toggle them in Settings → Fields).
 fields:
   - { key: name, label: Full Name, required: true, placeholder: "Ada Lovelace" }
-  - { key: pronouns, label: Pronouns, type: pronouns, hidden: true }
+  - { key: pronouns, label: Pronouns, type: pronouns }
   - { key: company, label: Affiliation, placeholder: "Analytical Engines Ltd." }
   - { key: url, label: "Profile URL (LinkedIn, etc.)", type: url, placeholder: "https://linkedin.com/in/..." }
   - key: role
@@ -75,7 +75,7 @@ elements:
     align: center
     valign: middle
 
-  # Only drawn when the (hidden by default) pronouns field is turned on.
+  # Only drawn when pronouns are filled in.
   - type: text
     field: pronouns
     x: 0.15
