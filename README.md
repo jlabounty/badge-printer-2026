@@ -9,7 +9,7 @@ A mobile-friendly web app for making conference name badges and printing them on
 ## Features
 
 - **4×3″ landscape badge, 250 dpi by default.** It exports a 1000×750 PNG. Size, DPI and rotation are all configurable.
-- **Contents:** the conference logo and title, name, pronouns, company, and an optional profile URL rendered as a QR code in the bottom corner.
+- **Contents:** the conference logo, then the full name and affiliation centred beneath it, plus an optional profile URL rendered as a QR code in the bottom corner. A pronouns field is included but hidden by default; turn it on in **Settings → Fields**.
 - **Optional banner strip:** Speaker, Sponsor, Staff, Volunteer or Organizer, or type your own.
 - **Pronoun picker:**
   - Select several common options, plus fill-in-the-blank entries.
@@ -142,7 +142,7 @@ badge-printer-2026/
 ├── badge.yaml        default badge layout/config
 ├── sample.csv        example batch import
 ├── sw.js             offline cache (network-first)
-├── assets/           logo placeholder, favicon
+├── assets/           event logo, favicon
 ├── vendor/           js-yaml 4.1.0, qrcode-generator 1.4.4 (vendored so no CDN is needed at the venue)
 └── js/
     ├── config.js     YAML load/validate, localStorage

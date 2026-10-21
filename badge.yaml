@@ -19,16 +19,15 @@ fonts:
   family: "Arial, Helvetica, sans-serif"
 
 # Values available to text elements as {key}
-vars:
-  event: "16th Annual oSTEM Conference"
-  event_sub: "Albuquerque, NM · Oct 22–24, 2026"
+vars: {}
 
 # Form fields shown in the app, in order. Any key added here can be used in
-# elements (field: key or "{key}") and in CSV imports.
+# elements (field: key or "{key}") and in CSV imports. Fields with
+# hidden: true are left off the form (toggle them in Settings → Fields).
 fields:
-  - { key: name, label: Name, required: true, placeholder: "Ada Lovelace" }
-  - { key: pronouns, label: Pronouns, type: pronouns }
-  - { key: company, label: Company / Organization, placeholder: "Analytical Engines Ltd." }
+  - { key: name, label: Full Name, required: true, placeholder: "Ada Lovelace" }
+  - { key: pronouns, label: Pronouns, type: pronouns, hidden: true }
+  - { key: company, label: Affiliation, placeholder: "Analytical Engines Ltd." }
   - { key: url, label: "Profile URL (LinkedIn, etc.)", type: url, placeholder: "https://linkedin.com/in/..." }
   - key: role
     label: Banner
@@ -55,88 +54,63 @@ pronoun_joiner: " · "     # joins entries that are not slash-mergeable (e.g. "a
 elements:
   - id: logo
     type: image
-    src: assets/logo.svg
-    x: 0.1
+    src: assets/logo.png
+    x: 0.9
     y: 0.08
-    w: 1.55
-    h: 0.6
+    w: 2.2
+    h: 0.78
     fit: contain
-    align: left
-
-  - type: text
-    text: "{event}"
-    x: 1.75
-    y: 0.06
-    w: 2.15
-    h: 0.42
-    size: 0.19
-    min_size: 0.11
-    max_lines: 2
-    weight: 700
-    align: right
-    valign: middle
-
-  - type: text
-    text: "{event_sub}"
-    x: 1.75
-    y: 0.48
-    w: 2.15
-    h: 0.2
-    size: 0.12
-    min_size: 0.08
-    align: right
-    valign: middle
-
-  - { type: line, x: 0.1, y: 0.76, w: 3.8, thickness: 0.025 }
+    align: center
 
   - type: text
     field: name
-    x: 0.1
-    y: 0.84
-    w: 3.8
-    h: 0.92
-    size: 0.62
-    min_size: 0.22
+    x: 0.15
+    y: 0.92
+    w: 3.7
+    h: 0.78
+    size: 0.46
+    min_size: 0.2
     max_lines: 3
-    weight: 800
+    weight: 700
     align: center
     valign: middle
-    when: { role: { h: 0.8 } }
 
+  # Only drawn when the (hidden by default) pronouns field is turned on.
   - type: text
     field: pronouns
-    x: 0.1
-    y: 1.76
-    w: 3.8
-    h: 0.27
-    size: 0.22
-    min_size: 0.14
+    x: 0.15
+    y: 1.68
+    w: 3.7
+    h: 0.26
+    size: 0.2
+    min_size: 0.13
     style: italic
     align: center
     valign: middle
-    when: { role: { y: 1.64, h: 0.26 } }
 
   - type: text
     field: company
-    x: 0.1
-    y: 2.14
-    w: 2.75
-    h: 0.76
-    size: 0.28
+    x: 0.15
+    y: 1.68
+    w: 3.7
+    h: 0.42
+    size: 0.27
     min_size: 0.15
     max_lines: 2
-    weight: 600
-    align: left
-    valign: bottom
-    when: { role: { y: 1.94, h: 0.6 } }
+    weight: 700
+    align: center
+    valign: middle
+    when:
+      pronouns: { y: 1.98 }
+      url: { x: 0.8, w: 2.4 }   # keep clear of the QR code
 
   - type: qr
     field: url
-    x: 2.98
-    y: 2.04
-    size: 0.9
+    x: 3.2
+    y: 2.12
+    size: 0.72
     quiet_zone: 2       # modules of white margin (badge whitespace adds the rest)
-    when: { role: { x: 3.1, y: 1.78, size: 0.8 } }
+    when: { role: { x: 3.3, y: 1.98, size: 0.6 } }
 
   # Optional banner strip (Speaker / Sponsor / Staff ...)
   - { type: rect, if: role, x: 0, y: 2.6, w: 4, h: 0.4, fill: "#000" }
