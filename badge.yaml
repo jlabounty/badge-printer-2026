@@ -33,6 +33,7 @@ fields:
     label: Banner
     type: select
     allow_custom: true
+    show_empty: true    # draw the banner strip even when blank
     options: ["", Speaker, Sponsor, Staff, Volunteer, Organizer, Expo Only, Full Conference]
 
 pronoun_options:
