@@ -58,6 +58,11 @@ const Settings = {
       const f = cfg.fields.find(x => x.key === 'role');
       if (f) f.options = ['', ...linesOf($('s-banners').value)];
     }));
+    $('s-banner-empty').addEventListener('change', e => this.edit(cfg => {
+      const f = cfg.fields.find(x => x.key === 'role');
+      if (!f) return;
+      if (e.target.checked) f.show_empty = true; else delete f.show_empty;
+    }));
 
     // YAML tab
     $('s-yaml-apply').addEventListener('click', () => this.applyYaml($('s-yaml').value));
@@ -214,6 +219,7 @@ const Settings = {
     const role = cfg.fields.find(x => x.key === 'role');
     $('s-banners').closest('.field-group').classList.toggle('hidden', !role);
     $('s-banners').value = (role?.options || []).filter(Boolean).join('\n');
+    $('s-banner-empty').checked = !!role?.show_empty;
 
     // YAML
     if (document.activeElement !== $('s-yaml')) $('s-yaml').value = this.hooks.getYaml();

@@ -28,16 +28,19 @@ function fillTemplate(str, data, cfg) {
   });
 }
 
-const hasValue = (data, key) => String(data[key] ?? '').trim() !== '';
+// A field with show_empty: true counts as filled even when blank, so its
+// if/when elements (e.g. the banner strip) still draw.
+const hasValue = (data, key, cfg) =>
+  String(data[key] ?? '').trim() !== '' || !!cfg?.fields.find(f => f.key === key)?.show_empty;
 
 // Apply if/unless/when; returns the effective element or null to skip it.
-function resolveElement(el, data) {
-  if (el.if && !hasValue(data, el.if)) return null;
-  if (el.unless && hasValue(data, el.unless)) return null;
+function resolveElement(el, data, cfg) {
+  if (el.if && !hasValue(data, el.if, cfg)) return null;
+  if (el.unless && hasValue(data, el.unless, cfg)) return null;
   let out = el;
   if (el.when && typeof el.when === 'object') {
     for (const [key, overrides] of Object.entries(el.when)) {
-      if (hasValue(data, key) && overrides && typeof overrides === 'object') out = { ...out, ...overrides };
+      if (hasValue(data, key, cfg) && overrides && typeof overrides === 'object') out = { ...out, ...overrides };
     }
   }
   return out;
@@ -357,7 +360,7 @@ function renderBadge(canvas, cfg, data) {
   }
 
   for (const raw of cfg.elements) {
-    const el = resolveElement(raw, data);
+    const el = resolveElement(raw, data, cfg);
     if (!el) continue;
     try {
       if (el.type === 'text') drawText(ctx, el, data, cfg);

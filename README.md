@@ -108,6 +108,7 @@ All positions and sizes are in **inches from the top-left** of the badge. A valu
 - `if: <field>` draws the element only when that field has a value.
 - `unless: <field>` draws it only when the field is empty.
 - `when: { <field>: { y: 1.9, h: 0.6 } }` overrides keys when the field has a value. The default layout uses this to make room for the banner.
+- A field with `show_empty: true` always counts as having a value for these conditions. **Settings → Fields → Show empty banner** sets this on `role`, so the banner strip prints blank (e.g. to write on by hand).
 
 ### Logo
 
