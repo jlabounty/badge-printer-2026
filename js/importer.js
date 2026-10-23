@@ -78,6 +78,8 @@ const BANNER_SYNONYMS = [
   [/organi[sz]|committee|board/i, 'organizer'],
   [/volunt/i, 'volunteer'],
   [/staff|crew/i, 'staff'],
+  [/expo/i, 'expo only'],
+  [/full/i, 'full conference'],
 ];
 
 // Map a ticket/category value to a banner option ('' = no banner).

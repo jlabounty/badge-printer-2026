@@ -33,7 +33,7 @@ fields:
     label: Banner
     type: select
     allow_custom: true
-    options: ["", Speaker, Sponsor, Staff, Volunteer, Organizer]
+    options: ["", Speaker, Sponsor, Staff, Volunteer, Organizer, Expo Only, Full Conference]
 
 pronoun_options:
   - she/her

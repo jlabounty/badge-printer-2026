@@ -10,7 +10,7 @@ A mobile-friendly web app for making conference name badges and printing them on
 
 - **4×3″ landscape badge, 250 dpi by default.** It exports a 1000×750 PNG. Size, DPI and rotation are all configurable.
 - **Contents:** the conference logo, then the full name and affiliation centred beneath it, plus an optional profile URL rendered as a QR code in the bottom corner. Pronouns are optional and, when filled in, print in italics between the name and affiliation.
-- **Optional banner strip:** Speaker, Sponsor, Staff, Volunteer or Organizer, or type your own.
+- **Optional banner strip:** Speaker, Sponsor, Staff, Volunteer, Organizer, Expo Only or Full Conference, or type your own.
 - **Pronoun picker:**
   - Select several common options, plus fill-in-the-blank entries.
   - Sets that share a form are merged and deduplicated: `he/they` + `she/they` + `they/them` gives **he/she/they/them**.
